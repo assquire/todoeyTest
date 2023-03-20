@@ -7,15 +7,25 @@
 
 import UIKit
 
-final class SectionViewController: UIViewController {
+final class ToBeDeletedMainViewController: UIViewController {
     
     private var sections = [TodoeySection]()
-    
     private lazy var contentView = UIView()
     
-    private lazy var sectionTableView : UITableView = {
+    private lazy var searchBar : UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.searchBarStyle = .minimal
+        searchBar.searchTextField.layer.cornerRadius = 20
+        searchBar.searchTextField.layer.masksToBounds = true
+        searchBar.searchTextField.backgroundColor = .systemBlue
+        searchBar.searchTextField.textColor = .white
+        searchBar.searchTextField.leftView?.tintColor = .white
+        return searchBar
+    }()
+    
+    private lazy var itemTableView: UITableView = {
         let myTableView = UITableView()
-        myTableView.register(DataTableViewCell.self, forCellReuseIdentifier: DataTableViewCell.IDENTIFIER)
+        myTableView.register(ItemTableViewCell.self, forCellReuseIdentifier: ItemTableViewCell.IDENTIFIER)
         return myTableView
     }()
     
@@ -28,8 +38,8 @@ final class SectionViewController: UIViewController {
         view.backgroundColor = .systemBackground
         configureNavBar()
         
-        sectionTableView.delegate = self
-        sectionTableView.dataSource = self
+        itemTableView.delegate = self
+        itemTableView.dataSource = self
         
         setupViews()
         setupConstraints()
@@ -38,20 +48,20 @@ final class SectionViewController: UIViewController {
 
 //MARK: SectionManger delegate methods
 
-extension SectionViewController: SectionManagerDelegate {
+extension ToBeDeletedMainViewController: SectionManagerDelegate {
     
     func didUpdate(with models: [TodoeySection]) {
         self.sections = models
         
         DispatchQueue.main.async {
-            self.sectionTableView.reloadData()
+            self.itemTableView.reloadData()
         }
     }
 }
 
 //MARK: - Private methods
 
-private extension SectionViewController {
+private extension ToBeDeletedMainViewController {
     
     func configureNavBar() {
         navigationItem.title = "Todoey"
@@ -60,7 +70,6 @@ private extension SectionViewController {
         
         let addBarButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
 
-        
         navigationItem.rightBarButtonItem = addBarButton
     }
     
@@ -81,14 +90,14 @@ private extension SectionViewController {
 
 //MARK: - Table view data source methods
 
-extension SectionViewController: UITableViewDataSource {
+extension ToBeDeletedMainViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         sections.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: DataTableViewCell.IDENTIFIER) as! DataTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: ItemTableViewCell.IDENTIFIER) as! ItemTableViewCell
 //        cell.configure(with: sections[indexPath.row])
         cell.selectionStyle = .none
         return cell
@@ -97,7 +106,7 @@ extension SectionViewController: UITableViewDataSource {
 
 //MARK: - Table view delegate methods
 
-extension SectionViewController: UITableViewDelegate {
+extension ToBeDeletedMainViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         view.frame.size.height * 0.1
@@ -127,21 +136,19 @@ extension SectionViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let viewController = ItemViewController()
-        
-        viewController.configure(with: sections[indexPath.row])
-        navigationController?.pushViewController(viewController, animated: true)
+
     }
 }
 
 
 //MARK: - Section Headin
 
-private extension SectionViewController{
+private extension ToBeDeletedMainViewController{
     
     func setupViews(){
         view.addSubview(contentView)
-        contentView.addSubview(sectionTableView)
+        contentView.addSubview(searchBar)
+        contentView.addSubview(itemTableView)
     }
     
     func setupConstraints(){
@@ -150,8 +157,17 @@ private extension SectionViewController{
             make.leading.trailing.equalToSuperview().inset(15)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }
-        sectionTableView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+        searchBar.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+        }
+        searchBar.searchTextField.snp.makeConstraints { make in
+            make.height.equalToSuperview().multipliedBy(0.7)
+            make.width.equalToSuperview()
+            make.center.equalToSuperview()
+        }
+        itemTableView.snp.makeConstraints { make in
+            make.top.equalTo(searchBar.snp.bottom).offset(10)
+            make.leading.trailing.bottom.equalToSuperview()
         }
     }
 }

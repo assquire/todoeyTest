@@ -2,7 +2,6 @@
 //  DataManager.swift
 //  Todoey
 //
-//  Created by Yerzhan Syzdyk on 02.03.2023.
 //
 
 import Foundation
@@ -96,7 +95,7 @@ private extension ItemManager {
         }
         
         if !isShowingCompleted {
-            let isCompletedPredicate = NSPredicate(format: "isCompleted == %@", "False")
+            let isCompletedPredicate = NSPredicate(format: "isCompleted = %d", false)
             predicateList.append(isCompletedPredicate)
         }
         
